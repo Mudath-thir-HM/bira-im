@@ -1,3 +1,4 @@
+import { verifyUserCredentials } from "@/lib/userStore";
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
@@ -17,27 +18,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new Error("Please enter your email and password");
         }
 
-        const classLevel = (credentials.classLevel as string) || "JSS1";
+        const user = await verifyUserCredentials(
+          credentials.email as string,
+          credentials.password as string
+        );
 
-        // Validate classLevel is one of the allowed values
-        const validClassLevels = ["JSS1", "JSS2", "JSS3"];
-        const validatedClassLevel = validClassLevels.includes(classLevel)
-          ? (classLevel as "JSS1" | "JSS2" | "JSS3")
-          : "JSS1";
+        if (!user) {
+          return null;
+        }
 
-        // In a real app, you'd check against your database here
-        // For demo purposes, we'll create a user object
-        const user = {
-          id: `user_${Date.now()}`,
-          email: credentials.email as string,
-          name: (credentials.email as string)
-            .split("@")[0]
-            .replace(/[^a-zA-Z]/g, " ")
-            .replace(/\b\w/g, (l) => l.toUpperCase()),
-          classLevel: validatedClassLevel,
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          classLevel: user.classLevel,
         };
-
-        return user;
       },
     }),
   ],
