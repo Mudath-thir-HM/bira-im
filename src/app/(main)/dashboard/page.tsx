@@ -7,9 +7,10 @@ import ProgressBar from "@/components/ui/ProgresBar";
 import { Icon } from "@/lib/constants";
 import { useUser } from "@/hooks/useUser";
 import { useState } from "react";
+import { signOut } from "next-auth/react";
 
 const Dashboard = () => {
-  const { user, logout } = useUser();
+  const { user } = useUser();
   const [selectedCourseIndex, setSelectedCourseIndex] = useState(0);
   const [isAchievementsModalOpen, setAchievementsModalOpen] = useState(false);
 
@@ -63,7 +64,7 @@ const Dashboard = () => {
                     Edit Profile
                   </a>
                   <button
-                    onClick={logout}
+                    onClick={() => signOut({ callbackUrl: "/" })}
                     className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
                     Sign Out

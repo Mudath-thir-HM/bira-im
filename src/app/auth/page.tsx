@@ -3,6 +3,7 @@
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { useUser } from "@/hooks/useUser";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -14,10 +15,10 @@ const AuthPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [classLevel, setClassLevel] = useState<"JSS1" | "JSS2" | "JSS3">(
     "JSS1"
   );
-  const { login } = useUser();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -28,22 +29,31 @@ const AuthPage = () => {
       if (mode === "signup") {
         if (password !== confirmPassword) {
           setError("Passwords don't match!");
+          setIsLoading(false);
           return;
         }
-        // In a real app, you'd register the user here.
-        await login(email, classLevel);
+
+        //Sign in with NextAuth
+        const result = await signIn("credentials", {
+          email,
+          password,
+          classLevel,
+          redirect: false,
+        });
+
+        if (result?.error) {
+          setError(result.error);
+          setIsLoading(false);
+          return;
+        }
+
+        // Redirect to homepage on success
         router.push("/homepage");
-      } else {
-        // In a real app, you'd authenticate the user here.
-        await login(email, "JSS1"); // Class level would be fetched for existing user
-        router.push("/homepage");
+        router.refresh();
       }
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "An error occurred during authentication"
-      );
+      setError("An error occurred during authentication");
+      setIsLoading(false);
     }
   };
 

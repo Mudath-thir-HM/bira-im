@@ -1,7 +1,14 @@
 "use client";
-import { createContext, ReactNode, useCallback, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { MOCK_ACHIEVEMENTS, SUBJECTS } from "@/lib/constants";
 import { CourseProgress, User } from "@/lib/types";
+import { useSession } from "next-auth/react";
 
 const NEW_USER_COURSES: CourseProgress[] = SUBJECTS.map((subject) => ({
   subjectId: subject.id,
@@ -12,31 +19,29 @@ const NEW_USER_COURSES: CourseProgress[] = SUBJECTS.map((subject) => ({
   icon: subject.image,
 }));
 
-const createNewUser = (
-  email: string,
-  classLevel: "JSS1" | "JSS2" | "JSS3"
-): User => {
-  const name = email
-    .split("@")[0]
-    .replace(/[^a-zA-Z]/g, " ")
-    .replace(/\b\w/g, (l) => l.toUpperCase());
+// const createNewUser = (
+//   email: string,
+//   classLevel: "JSS1" | "JSS2" | "JSS3"
+// ): User => {
+//   const name = email
+//     .split("@")[0]
+//     .replace(/[^a-zA-Z]/g, " ")
+//     .replace(/\b\w/g, (l) => l.toUpperCase());
 
-  return {
-    id: `user_${Date.now()}`,
-    name: name || "New Student",
-    email: email,
-    class: classLevel,
-    xp: 0,
-    avatarUrl: `https://picsum.photos/seed/${name}/100`,
-    courses: NEW_USER_COURSES,
-    achievements: [],
-  };
-};
+//   return {
+//     id: `user_${Date.now()}`,
+//     name: name || "New Student",
+//     email: email,
+//     class: classLevel,
+//     xp: 0,
+//     avatarUrl: `https://picsum.photos/seed/${name}/100`,
+//     courses: NEW_USER_COURSES,
+//     achievements: [],
+//   };
+// };
 
 interface UserContextType {
   user: User | null;
-  login: (email: string, classLevel: "JSS1" | "JSS2" | "JSS3") => void;
-  logout: () => void;
   addXp: (amount: number) => void;
   completeLesson: (subjectId: string) => void;
 }
@@ -46,22 +51,43 @@ export const UserContext = createContext<UserContextType | undefined>(
 );
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
+  const { data: session, status } = useSession();
   const [user, setUser] = useState<User | null>(null);
 
-  const login = useCallback(
-    async (email: string, classLevel: "JSS1" | "JSS2" | "JSS3") => {
-      //Logic for checking if user exists
-      const newUser = createNewUser(email, classLevel);
-      setUser(newUser);
-      // Return a promise that resolves when the user is set
-      return Promise.resolve();
-    },
-    []
-  );
+  useEffect(() => {
+    if (status === "authenticated" && session?.user && !user) {
+      const newUser: User = {
+        id: session.user.id,
+        name: session.user.name || "New Student",
+        email: session.user.email || "",
+        class: session.user.classLevel,
+        xp: 0,
+        avatarUrl: `https://picsum.photos/seed/${session.user.name}/100`,
+        courses: NEW_USER_COURSES,
+        achievements: [],
+      };
 
-  const logout = useCallback(() => {
-    setUser(null);
-  }, []);
+      setUser(newUser);
+    }
+    if (status === "unauthenticated") {
+      setUser(null);
+    }
+  }, [session, status, user]);
+
+  // const login = useCallback(
+  //   async (email: string, classLevel: "JSS1" | "JSS2" | "JSS3") => {
+  //     //Logic for checking if user exists
+  //     const newUser = createNewUser(email, classLevel);
+  //     setUser(newUser);
+  //     // Return a promise that resolves when the user is set
+  //     return Promise.resolve();
+  //   },
+  //   []
+  // );
+
+  // const logout = useCallback(() => {
+  //   setUser(null);
+  // }, []);
 
   const awardAchievement = useCallback((achievementId: string) => {
     setUser((currentUser) => {
@@ -147,9 +173,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   );
 
   return (
-    <UserContext.Provider
-      value={{ user, login, logout, addXp, completeLesson }}
-    >
+    <UserContext.Provider value={{ user, addXp, completeLesson }}>
       {children}
     </UserContext.Provider>
   );
