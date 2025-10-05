@@ -13,9 +13,6 @@ export type StoredUser = {
   createdAt: Date;
 };
 
-//replace with Database later
-const users: Map<string, StoredUser> = new Map();
-
 //Create a new user
 export async function createUser(
   email: string,

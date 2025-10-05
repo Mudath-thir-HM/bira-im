@@ -11,25 +11,25 @@ export const SUBJECTS: Subject[] = [
     id: "mathematics",
     name: "Mathematics",
     level: 1,
-    image: "https://i.ibb.co/L5w2pC9/math-illustration.png",
+    image: "/mathematics.png",
   },
   {
     id: "science",
     name: "Science",
     level: 2,
-    image: "https://i.ibb.co/hZ2wn21/science-illustration.png",
+    image: "/science.png",
   },
   {
     id: "english",
     name: "English",
     level: 1,
-    image: "https://i.ibb.co/dK83V9V/english-illustration.png",
+    image: "/english.png",
   },
   {
     id: "history",
     name: "History",
     level: 1,
-    image: "https://i.ibb.co/Yh4Q9wG/history-illustration.png",
+    image: "/history.png",
   },
 ];
 

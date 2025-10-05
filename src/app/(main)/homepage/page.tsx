@@ -1,5 +1,6 @@
 import Card from "@/components/ui/Card";
 import { SUBJECTS } from "@/lib/constants";
+import Image from "next/image";
 import Link from "next/link";
 
 const SubjectCard: React.FC<{ subject: (typeof SUBJECTS)[0] }> = ({
@@ -7,7 +8,9 @@ const SubjectCard: React.FC<{ subject: (typeof SUBJECTS)[0] }> = ({
 }) => (
   <Link href={`/homepage/${subject.id}`}>
     <Card className="hover:shadow-xl hover:-translate-y-1 transition-transform duration-300 ease-in-out cursor-pointer text-center">
-      <img
+      <Image
+        width={300}
+        height={300}
         src={subject.image}
         alt={subject.name}
         className="w-full h-48 object-contain mb-4 rounded-lg"

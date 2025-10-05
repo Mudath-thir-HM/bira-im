@@ -1,13 +1,12 @@
 "use client";
 import AchievementsModal from "@/components/AchievementsModal";
-import Header from "@/components/layout/Header";
 import Card from "@/components/ui/Card";
 import DonutChart from "@/components/ui/DonutChart";
 import ProgressBar from "@/components/ui/ProgresBar";
 import { Icon } from "@/lib/constants";
 import { useUser } from "@/hooks/useUser";
 import { useState } from "react";
-import { signOut } from "next-auth/react";
+import { signOut } from "@/lib/auth.config";
 
 const Dashboard = () => {
   const [selectedCourseIndex, setSelectedCourseIndex] = useState(0);
@@ -93,7 +92,7 @@ const Dashboard = () => {
                     Edit Profile
                   </a>
                   <button
-                    onClick={() => signOut({ callbackUrl: "/" })}
+                    onClick={() => signOut({ redirectTo: "/" })}
                     className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
                     Sign Out

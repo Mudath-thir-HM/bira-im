@@ -1,5 +1,5 @@
 // src/middleware.ts
-import { auth } from "@/app/api/auth/[...nextauth]/route";
+import { auth } from "@/lib/auth.config"; // Changed import path
 import { NextResponse } from "next/server";
 
 export default auth(async (req) => {

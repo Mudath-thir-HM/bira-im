@@ -1,6 +1,5 @@
 import { sendWelcomeEmail } from "@/lib/emailService";
 import { createUser } from "@/lib/userStore";
-import { error } from "console";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {

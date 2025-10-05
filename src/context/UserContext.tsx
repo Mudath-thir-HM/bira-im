@@ -7,7 +7,7 @@ import {
   useState,
   useEffect,
 } from "react";
-import { CourseProgress, User } from "@/lib/types";
+import { User } from "@/lib/types";
 import { useSession } from "next-auth/react";
 
 interface UserContextType {

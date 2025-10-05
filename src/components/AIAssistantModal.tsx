@@ -85,9 +85,15 @@ const AIAssistantModal: React.FC<AIAssistantModalProps> = ({ onClose }) => {
               <div className="flex justify-start">
                 <div className="max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-lg bg-brand-surface text-brand-text-primary">
                   <div className="flex items-center space-x-2">
-                    <div className="w-2 bg-brand-secondary rounded-full animate-bounce"></div>
-                    <div className="w-2 bg-brand-secondary rounded-full animate-bounce delay-150"></div>
-                    <div className="w-2 bg-brand-secondary rounded-full animate-bounce delay-300"></div>
+                    <div className="w-2 bg-brand-secondary rounded-full animate-bounce">
+                      .
+                    </div>
+                    <div className="w-2 bg-brand-secondary rounded-full animate-bounce delay-150">
+                      .
+                    </div>
+                    <div className="w-2 bg-brand-secondary rounded-full animate-bounce delay-300">
+                      .
+                    </div>
                   </div>
                 </div>
               </div>

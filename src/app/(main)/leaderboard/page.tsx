@@ -3,6 +3,7 @@ import Card from "@/components/ui/Card";
 import { MOCK_LEADERBOARD } from "@/lib/constants";
 import { useUser } from "@/hooks/useUser";
 import React from "react";
+import Image from "next/image";
 
 const Leaderboard: React.FC = () => {
   const { user } = useUser();
@@ -26,7 +27,9 @@ const Leaderboard: React.FC = () => {
               <span className="text-xl font-bold w-10 text-brand-text-secondary">
                 {entry.rank}
               </span>
-              <img
+              <Image
+                width={300}
+                height={300}
                 src={entry.avatarUrl}
                 alt={entry.name}
                 className="w-12 h-12 rounded-full mx-4"

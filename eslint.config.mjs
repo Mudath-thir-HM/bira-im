@@ -20,6 +20,16 @@ const eslintConfig = [
       "next-env.d.ts",
     ],
   },
+  ...tseslint.configs.recommended,
+  {
+    plugins: {
+      "@next/next": eslintPluginNext,
+    },
+    rules: {
+      // Turn off "no-explicit-any"
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
 ];
 
 export default eslintConfig;

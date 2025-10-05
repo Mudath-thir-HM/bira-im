@@ -1,12 +1,14 @@
+// src/app/auth/verify/page.tsx
 "use client";
 
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { Icon } from "@/lib/constants";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 
-const VerificationPage = () => {
+// Separate the component that uses useSearchParams
+function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [status, setStatus] = useState<"verifying" | "success" | "error">(
@@ -23,7 +25,7 @@ const VerificationPage = () => {
       return;
     }
 
-    //verify the token
+    // Verify the token
     fetch("/api/auth/verify", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -113,6 +115,29 @@ const VerificationPage = () => {
       </Card>
     </div>
   );
-};
+}
 
-export default VerificationPage;
+// Loading fallback component
+function VerifyLoading() {
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <Card className="w-full max-w-md text-center">
+        <Icon
+          name="robot"
+          className="w-16 h-16 mx-auto mb-4 text-brand-secondary animate-bounce"
+        />
+        <h2 className="text-2xl font-bold mb-2">Loading...</h2>
+        <p className="text-brand-text-secondary">Please wait</p>
+      </Card>
+    </div>
+  );
+}
+
+// Main component wrapped in Suspense
+export default function VerificationPage() {
+  return (
+    <Suspense fallback={<VerifyLoading />}>
+      <VerifyEmailContent />
+    </Suspense>
+  );
+}

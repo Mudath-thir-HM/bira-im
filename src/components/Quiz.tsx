@@ -20,7 +20,6 @@ const Quiz: React.FC<QuizProps> = ({
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showResult, setShowResult] = useState(false);
-  const [score, setScore] = useState(0);
   const [xpGained, setXpGained] = useState(0);
 
   const currentQuestion = questions[currentQuestionIndex];
@@ -32,7 +31,6 @@ const Quiz: React.FC<QuizProps> = ({
 
   const handleNext = () => {
     if (selectedAnswer === currentQuestion.correctAnswer) {
-      setScore((s) => s + 1);
       setXpGained((xp) => xp + currentQuestion.xp);
       addXp(currentQuestion.xp);
     }
