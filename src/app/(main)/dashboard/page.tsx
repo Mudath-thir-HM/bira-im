@@ -6,7 +6,7 @@ import ProgressBar from "@/components/ui/ProgresBar";
 import { Icon } from "@/lib/constants";
 import { useUser } from "@/hooks/useUser";
 import { useState } from "react";
-import { signOut } from "@/lib/auth.config";
+import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 const Dashboard = () => {
@@ -94,9 +94,8 @@ const Dashboard = () => {
                     Edit Profile
                   </a>
                   <button
-                    onClick={async () => {
-                      await signOut();
-                      router.replace("/");
+                    onClick={() => {
+                      signOut({ callbackUrl: "/" });
                     }}
                     className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
