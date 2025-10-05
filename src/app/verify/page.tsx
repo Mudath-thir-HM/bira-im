@@ -1,8 +1,9 @@
+"use client";
+
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { Icon } from "@/lib/constants";
-import { useSearchParams } from "next/navigation";
-import { useRouter } from "next/router";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const VerificationPage = () => {
@@ -18,7 +19,7 @@ const VerificationPage = () => {
 
     if (!token) {
       setStatus("error");
-      setMessage("Invalid verifiction link");
+      setMessage("Invalid verification link");
       return;
     }
 

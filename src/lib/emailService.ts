@@ -8,7 +8,7 @@ export async function sendWelcomeEmail(
   name: string,
   verificationToken: string
 ): Promise<void> {
-  const verificationUrl = `${process.env.NEXT_AUTH_URL}/auth/verify?token=${verificationToken}`;
+  const verificationUrl = `${process.env.NEXT_AUTH_URL}/verify?token=${verificationToken}`;
 
   try {
     await resend.emails.send({
