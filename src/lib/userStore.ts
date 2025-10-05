@@ -1,4 +1,6 @@
 import { hashPassword, verifyPassword } from "./auth";
+import { SUBJECTS } from "./constants";
+import { prisma } from "./prisma";
 
 export type StoredUser = {
   id: string;
@@ -28,29 +30,42 @@ export async function createUser(
   }
 
   const hashedPassword = await hashPassword(password);
-  const userId = `user_${Date.now()}`;
   const verificationToken = generateVerificationToken();
 
-  const newUser: StoredUser = {
-    id: userId,
-    email,
-    name /*.split("@")[0].replace(/[^a-zA-Z]/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())*/,
-    password: hashedPassword,
-    classLevel,
-    emailVerified: false,
-    verificationToken,
-    createdAt: new Date(),
-  };
+  const user = await prisma.user.create({
+    data: {
+      email: email.toLowerCase(),
+      name,
+      password: hashedPassword,
+      classLevel,
+      emailVerified: false,
+      verificationToken,
+      xp: 0,
+      avatarUrl: `https://picsum.photos/seed/${name}/100`,
+      courses: {
+        create: SUBJECTS.map((subject) => ({
+          subjectId: subject.id,
+          subjectName: subject.name,
+          lessonCompleted: 0,
+          totalLessons: 7,
+          level: subject.level,
+          icon: subject.image,
+        })),
+      },
+    },
+  });
 
-  users.set(email.toLowerCase(), newUser);
-  return newUser;
+  return user as StoredUser;
 }
 
 //Get user by email
 export async function getUserByEmail(
   email: string
 ): Promise<StoredUser | null> {
-  return users.get(email.toLowerCase()) || null;
+  const user = await prisma.user.findUnique({
+    where: { email: email.toLowerCase() },
+  });
+  return user as StoredUser | null;
 }
 
 //Verify credentials
@@ -73,14 +88,23 @@ export async function verifyUserCredentials(
 
 //verify email with token
 export async function verifyEmail(token: string): Promise<boolean> {
-  for (const user of users.values()) {
-    if (user.verificationToken === token) {
-      user.emailVerified = true;
-      user.verificationToken = null;
-      return true;
-    }
+  const user = await prisma.user.findUnique({
+    where: { verificationToken: token },
+  });
+
+  if (!user) {
+    return false;
   }
-  return false;
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      emailVerified: true,
+      verificationToken: null,
+    },
+  });
+
+  return true;
 }
 
 //Generate a random verification token

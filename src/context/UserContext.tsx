@@ -3,47 +3,17 @@ import {
   createContext,
   ReactNode,
   useCallback,
-  useEffect,
   useState,
+  useEffect,
 } from "react";
-import { MOCK_ACHIEVEMENTS, SUBJECTS } from "@/lib/constants";
 import { CourseProgress, User } from "@/lib/types";
 import { useSession } from "next-auth/react";
-
-const NEW_USER_COURSES: CourseProgress[] = SUBJECTS.map((subject) => ({
-  subjectId: subject.id,
-  subjectName: subject.name,
-  lessonsCompleted: 0,
-  totalLessons: 7,
-  level: subject.level,
-  icon: subject.image,
-}));
-
-// const createNewUser = (
-//   email: string,
-//   classLevel: "JSS1" | "JSS2" | "JSS3"
-// ): User => {
-//   const name = email
-//     .split("@")[0]
-//     .replace(/[^a-zA-Z]/g, " ")
-//     .replace(/\b\w/g, (l) => l.toUpperCase());
-
-//   return {
-//     id: `user_${Date.now()}`,
-//     name: name || "New Student",
-//     email: email,
-//     class: classLevel,
-//     xp: 0,
-//     avatarUrl: `https://picsum.photos/seed/${name}/100`,
-//     courses: NEW_USER_COURSES,
-//     achievements: [],
-//   };
-// };
 
 interface UserContextType {
   user: User | null;
   addXp: (amount: number) => void;
   completeLesson: (subjectId: string) => void;
+  refreshUser: () => Promise<void>;
 }
 
 export const UserContext = createContext<UserContextType | undefined>(
@@ -54,126 +24,95 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const { data: session, status } = useSession();
   const [user, setUser] = useState<User | null>(null);
 
-  useEffect(() => {
-    if (status === "authenticated" && session?.user && !user) {
-      const newUser: User = {
-        id: session.user.id,
-        name: session.user.name || "New Student",
-        email: session.user.email || "",
-        class: session.user.classLevel,
-        xp: 0,
-        avatarUrl: `https://picsum.photos/seed/${session.user.name}/100`,
-        courses: NEW_USER_COURSES,
-        achievements: [],
-      };
-
-      setUser(newUser);
+  // Fetch user data from database
+  const fetchUserData = useCallback(async (userId: string) => {
+    try {
+      const response = await fetch(`/api/user/${userId}`);
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+      }
+    } catch (error) {
+      console.error("Failed to fetch user data:", error);
     }
+  }, []);
+
+  // Initialize user from session
+  useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      fetchUserData(session.user.id);
+    }
+
+    // Clear user when logged out
     if (status === "unauthenticated") {
       setUser(null);
     }
-  }, [session, status, user]);
+  }, [session, status, fetchUserData]);
 
-  // const login = useCallback(
-  //   async (email: string, classLevel: "JSS1" | "JSS2" | "JSS3") => {
-  //     //Logic for checking if user exists
-  //     const newUser = createNewUser(email, classLevel);
-  //     setUser(newUser);
-  //     // Return a promise that resolves when the user is set
-  //     return Promise.resolve();
-  //   },
-  //   []
-  // );
+  const refreshUser = useCallback(async () => {
+    if (session?.user?.id) {
+      await fetchUserData(session.user.id);
+    }
+  }, [session, fetchUserData]);
 
-  // const logout = useCallback(() => {
-  //   setUser(null);
-  // }, []);
-
-  const awardAchievement = useCallback((achievementId: string) => {
-    setUser((currentUser) => {
-      if (!currentUser) return null;
-
-      const achievement = MOCK_ACHIEVEMENTS.find((a) => a.id === achievementId);
-      if (
-        !achievement ||
-        currentUser.achievements.some((a) => a.id === achievementId)
-      ) {
-        return currentUser;
-      }
-
-      console.log(`Awarding achievement: ${achievement.name}`);
-      return {
-        ...currentUser,
-        achievements: [...currentUser.achievements, achievement],
-      };
-    });
-  }, []);
   const addXp = useCallback(
-    (amount: number) => {
-      setUser((currentUser) => {
-        if (!currentUser) return null;
-        const newXp = currentUser.xp + amount;
+    async (amount: number) => {
+      if (!user) return;
 
-        if (newXp >= 1000 && currentUser.xp < 1000) {
-          awardAchievement("7");
+      try {
+        const response = await fetch("/api/user/xp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.id, amount }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUser((prev) =>
+            prev
+              ? { ...prev, xp: data.xp, achievements: data.achievements }
+              : null
+          );
         }
-
-        return { ...currentUser, xp: newXp };
-      });
+      } catch (error) {
+        console.error("Failed to add XP:", error);
+      }
     },
-    [awardAchievement]
+    [user]
   );
 
   const completeLesson = useCallback(
-    (subjectId: string) => {
-      setUser((currentUser) => {
-        if (!currentUser) return null;
+    async (subjectId: string) => {
+      if (!user) return;
 
-        let courseCompleted = false;
-
-        const updatedCourses = currentUser.courses.map((course) => {
-          if (
-            course.subjectId === subjectId &&
-            course.lessonsCompleted < course.totalLessons
-          ) {
-            const newCompletedCount = course.lessonsCompleted + 1;
-            if (newCompletedCount === course.totalLessons) {
-              courseCompleted = true;
-            }
-            return { ...course, lessonsCompleted: newCompletedCount };
-          }
-          return course;
+      try {
+        const response = await fetch("/api/user/complete-lesson", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.id, subjectId }),
         });
 
-        if (currentUser.achievements.length === 0) {
-          awardAchievement("1");
+        if (response.ok) {
+          const data = await response.json();
+          setUser((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  courses: data.courses,
+                  achievements: data.achievements,
+                }
+              : null
+          );
         }
-
-        if (courseCompleted) {
-          switch (subjectId) {
-            case "mathematics":
-              awardAchievement("2");
-              break;
-            case "science":
-              awardAchievement("3");
-              break;
-            case "english":
-              awardAchievement("4");
-              break;
-            case "history":
-              awardAchievement("5");
-              break;
-          }
-        }
-
-        return { ...currentUser, courses: updatedCourses };
-      });
+      } catch (error) {
+        console.error("Failed to complete lesson:", error);
+      }
     },
-    [awardAchievement]
+    [user]
   );
 
   return (
-    <UserContext.Provider value={{ user, addXp, completeLesson }}>
+    <UserContext.Provider value={{ user, addXp, completeLesson, refreshUser }}>
       {children}
     </UserContext.Provider>
   );
