@@ -7,11 +7,13 @@ import { Icon } from "@/lib/constants";
 import { useUser } from "@/hooks/useUser";
 import { useState } from "react";
 import { signOut } from "@/lib/auth.config";
+import { useRouter } from "next/navigation";
 
 const Dashboard = () => {
   const [selectedCourseIndex, setSelectedCourseIndex] = useState(0);
   const [isAchievementsModalOpen, setAchievementsModalOpen] = useState(false);
   const { user, isLoading } = useUser();
+  const router = useRouter();
 
   if (isLoading) {
     return (
@@ -92,7 +94,10 @@ const Dashboard = () => {
                     Edit Profile
                   </a>
                   <button
-                    onClick={() => signOut({ redirectTo: "/" })}
+                    onClick={async () => {
+                      await signOut();
+                      router.replace("/");
+                    }}
                     className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
                     Sign Out
