@@ -1,3 +1,4 @@
+// src/hooks/useUser.ts
 "use client";
 
 import { UserContext } from "@/context/UserContext";

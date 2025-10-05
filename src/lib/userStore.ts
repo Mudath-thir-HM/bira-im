@@ -46,7 +46,7 @@ export async function createUser(
         create: SUBJECTS.map((subject) => ({
           subjectId: subject.id,
           subjectName: subject.name,
-          lessonCompleted: 0,
+          lessonsCompleted: 0,
           totalLessons: 7,
           level: subject.level,
           icon: subject.image,

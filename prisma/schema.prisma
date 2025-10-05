@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,76 +8,64 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum ClassLevel {
-  JSS1
-  JSS2
-  JSS3
-}
-
-//User model
 model User {
-  id                String     @id @default(cuid())
-  email             String     @unique
+  id                String            @id @default(cuid())
+  email             String            @unique
   name              String
   password          String
-  classLevel        ClassLevel
-  emailVerified     Boolean    @default(false)
-  verificationToken String?    @unique
-  xp                Int        @default(0)
+  emailVerified     Boolean           @default(false)
+  verificationToken String?           @unique
+  xp                Int               @default(0)
   avatarUrl         String?
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
-
-  //Relations
-  courses      CourseProgress[]
-  achievements UserAchievement[]
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  classLevel        ClassLevel
+  courses           CourseProgress[]
+  achievements      UserAchievement[]
 
   @@index([email])
 }
 
-//Course progress tracking
 model CourseProgress {
   id               String   @id @default(cuid())
   userId           String
   subjectId        String
   subjectName      String
-  lessonsCompleted Int      @default(0)
   totalLessons     Int      @default(7)
   level            Int      @default(1)
   icon             String
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
-
-  //Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonsCompleted Int      @default(0)
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, subjectId])
   @@index([userId])
 }
 
-//Achievements system
 model Achievement {
-  id          String   @id @default(cuid())
-  name        String   @unique
+  id          String            @id @default(cuid())
+  name        String            @unique
   description String
   icon        String
-  createdAt   DateTime @default(now())
-
-  //Relations
-  users UserAchievement[]
+  createdAt   DateTime          @default(now())
+  users       UserAchievement[]
 }
 
-//Joint table for users and achievements
 model UserAchievement {
-  id            String   @id @default(cuid())
+  id            String      @id @default(cuid())
   userId        String
   achievementId String
-  earnedAt      DateTime @default(now())
-
-  //Relations
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  earnedAt      DateTime    @default(now())
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, achievementId])
   @@index([userId])
+}
+
+enum ClassLevel {
+  JSS1
+  JSS2
+  JSS3
 }

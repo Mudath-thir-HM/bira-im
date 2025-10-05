@@ -121,7 +121,7 @@ const LandingPage = () => {
         }`}
       >
         <h1 className="text-2xl tracking-wide font-black text-dark-brownium drop-shadow">
-          Sprout
+          Bira'eem
         </h1>
         <Link href="/auth">
           <button className="border-2 border-gradient-to-br from-medium-brownium to-light-brownium text-dark-brownium px-4 py-2 rounded-xl hover:bg-gradient-to-br hover:from-medium-brownium hover:to-light-brownium hover:text-white transition-all cursor-pointer">
@@ -139,7 +139,7 @@ const LandingPage = () => {
           transition-all duration-700 ease-out transform
           ${show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
           >
-            Welcome To Sprout
+            Welcome To Bira'eem
           </h2>
 
           {/* Subtext */}
@@ -153,7 +153,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      <section className="py-20 px-6 space-y-20 flex-col md:flex-row justify-between items-center">
+      <section className="py-20 px-6 space-y-20 flex md:flex-row justify-between items-center">
         {features.map((feature, index) => (
           <FadeInSection key={index} delay={index * 200}>
             <Image

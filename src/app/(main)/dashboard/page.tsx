@@ -10,9 +10,38 @@ import { useState } from "react";
 import { signOut } from "next-auth/react";
 
 const Dashboard = () => {
-  const { user } = useUser();
   const [selectedCourseIndex, setSelectedCourseIndex] = useState(0);
   const [isAchievementsModalOpen, setAchievementsModalOpen] = useState(false);
+  const { user, isLoading } = useUser();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <Icon
+            name="robot"
+            className="w-16 h-16 mx-auto mb-4 text-brand-secondary animate-bounce"
+          />
+          <p className="text-xl font-semibold">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-xl font-semibold text-red-600">
+            Failed to load user data
+          </p>
+          <p className="text-sm text-brand-text-secondary mt-2">
+            Please try refreshing the page
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return <div>Loading user data...</div>;

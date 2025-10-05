@@ -1,3 +1,4 @@
+// src/context/UserContext.tsx
 "use client";
 import {
   createContext,
@@ -14,6 +15,7 @@ interface UserContextType {
   addXp: (amount: number) => void;
   completeLesson: (subjectId: string) => void;
   refreshUser: () => Promise<void>;
+  isLoading: boolean;
 }
 
 export const UserContext = createContext<UserContextType | undefined>(
@@ -23,29 +25,48 @@ export const UserContext = createContext<UserContextType | undefined>(
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const { data: session, status } = useSession();
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Fetch user data from database
   const fetchUserData = useCallback(async (userId: string) => {
+    setIsLoading(true);
     try {
+      console.log("Fetching user data for:", userId);
       const response = await fetch(`/api/user/${userId}`);
+
       if (response.ok) {
         const userData = await response.json();
+        console.log("User data loaded:", userData);
         setUser(userData);
+      } else {
+        console.error(
+          "Failed to fetch user:",
+          response.status,
+          await response.text()
+        );
       }
     } catch (error) {
       console.error("Failed to fetch user data:", error);
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
   // Initialize user from session
   useEffect(() => {
+    console.log("Session status:", status);
+    console.log("Session data:", session);
+
     if (status === "authenticated" && session?.user) {
+      console.log("User authenticated, fetching data...");
       fetchUserData(session.user.id);
     }
 
     // Clear user when logged out
     if (status === "unauthenticated") {
+      console.log("User unauthenticated, clearing data");
       setUser(null);
+      setIsLoading(false);
     }
   }, [session, status, fetchUserData]);
 
@@ -112,7 +133,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   );
 
   return (
-    <UserContext.Provider value={{ user, addXp, completeLesson, refreshUser }}>
+    <UserContext.Provider
+      value={{ user, addXp, completeLesson, refreshUser, isLoading }}
+    >
       {children}
     </UserContext.Provider>
   );

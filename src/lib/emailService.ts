@@ -74,11 +74,11 @@ export async function sendWelcomeEmail(
           <body>
             <div class="container">
               <div class="header">
-                <h1>🌱 Welcome to Sprout!</h1>
+                <h1>🌱 Welcome to Bira'eem!</h1>
               </div>
               <div class="content">
                 <h2>Hello ${name}! 👋</h2>
-                <p>We're thrilled to have you join our learning community! Sprout is your personal learning companion, designed to make education fun and engaging.</p>
+                <p>We're thrilled to have you join our learning community! Bira'eem is your personal learning companion, designed to make education fun and engaging.</p>
                 
                 <p><strong>Here's what awaits you:</strong></p>
                 <ul>
@@ -101,12 +101,12 @@ export async function sendWelcomeEmail(
 
                 <p style="margin-top: 30px;">
                   Happy learning! 🎓<br>
-                  <strong>The Sprout Team</strong>
+                  <strong>The Bira'eem Team</strong>
                 </p>
               </div>
               <div class="footer">
                 <p>If you didn't create an account with Bira'eem, please ignore this email.</p>
-                <p>© ${new Date().getFullYear()} Sprout Learning. All rights reserved.</p>
+                <p>© ${new Date().getFullYear()} Bira'eem Learning. All rights reserved.</p>
               </div>
             </div>
           </body>
