@@ -9,13 +9,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
-        classLevel: { label: "Class Level", type: "text" },
       },
       async authorize(credentials) {
-        // This is where you'd verify credentials against your database
-        // For now, we'll accept any email/password combination
         if (!credentials?.email || !credentials.password) {
-          throw new Error("Please enter your email and password");
+          return null;
         }
 
         const user = await verifyUserCredentials(
@@ -27,6 +24,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
 
+        if (!user.emailVerified) {
+          throw new Error(
+            "Please verify your email before signing in. Check your inbox for the verification link."
+          );
+        }
         return {
           id: user.id,
           email: user.email,
@@ -41,6 +43,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.name = user.name;
+        token.email = user.email;
         token.classLevel = (user as any).classLevel;
       }
       return token;
