@@ -153,7 +153,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      <section className="py-20 px-6 space-y-20 flex md:flex-row justify-between items-center">
+      <section className="py-20 px-6 space-y-20 flex flex-col md:flex-row justify-between items-center">
         {features.map((feature, index) => (
           <FadeInSection key={index} delay={index * 200}>
             <Image

@@ -1,6 +1,24 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Create transporter using Gmail SMTP
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST || "smtp.gmail.com",
+  port: parseInt(process.env.EMAIL_PORT || "587"),
+  secure: false, // true for 465, false for other ports
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
+
+// Verify transporter configuration
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("❌ Email transporter error:", error);
+  } else {
+    console.log("✅ Email server is ready to send messages");
+  }
+});
 
 //Send welcome to user
 export async function sendWelcomeEmail(
@@ -8,10 +26,16 @@ export async function sendWelcomeEmail(
   name: string,
   verificationToken: string
 ): Promise<void> {
-  const verificationUrl = `${process.env.NEXT_AUTH_URL}/verify?token=${verificationToken}`;
+  const baseUrl = process.env.NEXTAUTH_URL || "https://bira-im.vercel.app";
+  const verificationUrl = `${baseUrl}/verify?token=${verificationToken}`;
+
+  console.log("📧 Preparing welcome email...");
+  console.log("   To:", email);
+  console.log("   Verification URL:", verificationUrl);
+  console.log("   Resend API Key exists:", !!process.env.RESEND_API_KEY);
 
   try {
-    await resend.emails.send({
+    await transporter.sendMail({
       from: "Bira'eem Learning <onboarding@resend.dev>",
       to: email,
       subject: "🌱 Welcome to bira'eem - Verify Your Email",
@@ -112,10 +136,25 @@ export async function sendWelcomeEmail(
           </body>
         </html>
       `,
+      text: `
+        Welcome to Bira'eem, ${name}!
+
+        We're thrilled to have you join our learning community!
+
+        To get started, please verify your email address by clicking this link:
+        ${verificationUrl}
+
+        Happy learning!
+        The Bira'eem Team
+
+        If you didn't create an account with Bira'eem, please ignore this email.
+      `,
     });
+
     console.log(`Welcome email sent to ${email}}`);
   } catch (error) {
     console.error("Failed to send welcome email:", error);
+    throw error;
   }
 }
 
@@ -126,7 +165,7 @@ export async function sendContactFormEmail(
   message: string
 ): Promise<void> {
   try {
-    await resend.emails.send({
+    await transporter.sendMail({
       from: "Bira'eem Contact Form <onboarding@resend.dev>",
       to: "eighthmudathir@gmail.com",
       replyTo: email,

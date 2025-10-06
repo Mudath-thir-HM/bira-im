@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 const Dashboard = () => {
   const [selectedCourseIndex, setSelectedCourseIndex] = useState(0);
   const [isAchievementsModalOpen, setAchievementsModalOpen] = useState(false);
+  const [isDropdownOpen, setDropdownOpen] = useState(false);
   const { user, isLoading } = useUser();
   const router = useRouter();
 
@@ -85,22 +86,31 @@ const Dashboard = () => {
                 </div>
               </div>
               <div className="relative group">
-                <button className="text-brand-text-secondary">•••</button>
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Edit Profile
-                  </a>
+                {/* Three dots + dropdown */}
+                <div className="relative">
                   <button
-                    onClick={() => {
-                      signOut({ callbackUrl: "/" });
-                    }}
-                    className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={() => setDropdownOpen((prev) => !prev)}
+                    className="text-brand-text-secondary cursor-pointer"
                   >
-                    Sign Out
+                    •••
                   </button>
+
+                  {isDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20">
+                      <a
+                        href="#"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Edit Profile
+                      </a>
+                      <button
+                        onClick={() => signOut({ callbackUrl: "/" })}
+                        className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                      >
+                        Sign Out
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

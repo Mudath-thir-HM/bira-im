@@ -26,7 +26,14 @@ export async function POST(request: NextRequest) {
     const user = await createUser(email, password, name, classLevel);
 
     //Send welcome email with verification link
-    await sendWelcomeEmail(email, name, user.verificationToken!);
+    try {
+      await sendWelcomeEmail(email, name, user.verificationToken!);
+      console.log("✅ Welcome email sent successfully");
+    } catch (emailError) {
+      console.error("❌ Failed to send welcome email:", emailError);
+      // Don't fail the signup if email fails
+      // User can still verify manually or resend later
+    }
 
     return NextResponse.json(
       {
