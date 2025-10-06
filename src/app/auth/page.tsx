@@ -61,6 +61,7 @@ const AuthPage = () => {
         // Show success message
         setSuccess(data.message);
         setIsLoading(false);
+        alert(data.message);
 
         // Clear form
         setEmail("");
