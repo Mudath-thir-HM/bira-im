@@ -62,6 +62,15 @@ export async function POST(request: NextRequest) {
           },
         });
       }
+
+      await prisma.notification.create({
+        data: {
+          userId,
+          type: "achievement",
+          title: "🎉 First Achievement!",
+          message: "You completed your first lesson! Keep up the great work!",
+        },
+      });
     }
 
     // Check for course completion achievements
@@ -99,6 +108,15 @@ export async function POST(request: NextRequest) {
           }
         }
       }
+
+      await prisma.notification.create({
+        data: {
+          userId,
+          type: "milestone",
+          title: "🎓 Course Completed!",
+          message: `Congratulations! You've completed all lessons in ${updatedCourse.subjectName}!`,
+        },
+      });
     }
 
     // Fetch updated data

@@ -57,6 +57,18 @@ export async function POST(request: NextRequest) {
           });
         }
       }
+
+      // Create notification
+      await prisma.notification.create({
+        data: {
+          userId,
+          type: "achievement",
+          title: "🏆 Achievement Unlocked!",
+          message: `Congratulations! You earned the "${
+            xpAchievement!.name
+          }" achievement for reaching 1000 XP!`,
+        },
+      });
     }
 
     // Fetch updated achievements

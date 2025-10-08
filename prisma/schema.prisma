@@ -22,6 +22,7 @@ model User {
   classLevel        ClassLevel
   courses           CourseProgress[]
   achievements      UserAchievement[]
+  notifications     Notification[]
 
   @@index([email])
 }
@@ -62,6 +63,23 @@ model UserAchievement {
 
   @@unique([userId, achievementId])
   @@index([userId])
+}
+
+// Notification model
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String // 'achievement', 'lesson', 'system', 'milestone'
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, read])
 }
 
 enum ClassLevel {
