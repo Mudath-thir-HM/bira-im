@@ -10,7 +10,6 @@ import {
   generateLessonContent,
   generateQuiz,
 } from "@/services/geminiService";
-import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
@@ -113,9 +112,7 @@ const LessonPage: React.FC = () => {
             </div>
 
             {currentModule.imageUrl ? (
-              <Image
-                width={300}
-                height={300}
+              <img
                 src={currentModule.imageUrl}
                 alt={currentModule.title}
                 className="w-full h-48 object-cover rounded-lg mb-4 bg-brand-primary"
