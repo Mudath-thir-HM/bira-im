@@ -33,15 +33,22 @@ const Lesson = () => {
   const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
   const [xpGained, setXpGained] = useState(0);
   const [currentModuleIndex, setCurrentModuleIndex] = useState(0);
+  const [isCompleted, setIsCompleted] = useState(false);
 
   const subject = SUBJECTS.find((s) => s.id === subjectId);
+
+  useEffect(() => {
+    // Check localStorage for completion
+    const completed = localStorage.getItem(`lesson-completed-${subjectId}`);
+    if (completed) setIsCompleted(true);
+  }, [subjectId]);
 
   const loadContent = useCallback(async () => {
     if (!subject || !userClass) return;
     setPageState(PageState.Loading);
     try {
       const content = await generateLessonContent(subject.name, userClass);
-      const questions = await generateQuiz(subject.name, userClass);
+      const questions = await generateQuiz(subject.name, userClass, content);
 
       // Generate illustrations for each module
       const illustratedLessons = await Promise.all(
@@ -70,6 +77,7 @@ const Lesson = () => {
   const handleQuizComplete = (totalXp: number) => {
     setXpGained(totalXp);
     setPageState(PageState.Complete);
+    localStorage.setItem(`lesson-completed-${subjectId}`, "true");
   };
 
   const handleNextModule = () => {
@@ -81,6 +89,10 @@ const Lesson = () => {
   };
 
   const renderContent = () => {
+    if (isCompleted && pageState !== PageState.Complete) {
+      setPageState(PageState.Complete);
+      return null;
+    }
     switch (pageState) {
       case PageState.Loading:
         return (

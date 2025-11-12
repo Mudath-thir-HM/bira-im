@@ -10,6 +10,7 @@ import {
   generateLessonContent,
   generateQuiz,
 } from "@/services/geminiService";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
@@ -32,6 +33,7 @@ const LessonPage: React.FC = () => {
   const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
   const [xpGained, setXpGained] = useState(0);
   const [currentModuleIndex, setCurrentModuleIndex] = useState(0);
+  const [isCompleted, setIsCompleted] = useState(false);
 
   const subject = SUBJECTS.find((s) => s.id === id);
 
@@ -40,7 +42,7 @@ const LessonPage: React.FC = () => {
     setPageState(PageState.Loading);
     try {
       const content = await generateLessonContent(subject.name, userClass);
-      const questions = await generateQuiz(subject.name, userClass);
+      const questions = await generateQuiz(subject.name, userClass, content);
 
       // Generate illustrations for each module
       const illustratedLessons = await Promise.all(
@@ -60,15 +62,25 @@ const LessonPage: React.FC = () => {
   }, [subject, userClass]);
 
   useEffect(() => {
+    // Check localStorage for completion
+    if (id) {
+      const completed = localStorage.getItem(`lesson-completed-${id}`);
+      if (completed) setIsCompleted(true);
+    }
     // Only load content when userClass is available to prevent unnecessary re-renders.
     if (userClass) {
       loadContent();
     }
-  }, [loadContent, userClass]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadContent, userClass, id]);
 
   const handleQuizComplete = (totalXp: number) => {
     setXpGained(totalXp);
     setPageState(PageState.Complete);
+    if (id) {
+      localStorage.setItem(`lesson-completed-${id}`, "true");
+      setIsCompleted(true);
+    }
   };
 
   const handleNextModule = () => {
@@ -80,6 +92,10 @@ const LessonPage: React.FC = () => {
   };
 
   const renderContent = () => {
+    if (isCompleted && pageState !== PageState.Complete) {
+      setPageState(PageState.Complete);
+      return null;
+    }
     switch (pageState) {
       case PageState.Loading:
         return (
@@ -112,7 +128,9 @@ const LessonPage: React.FC = () => {
             </div>
 
             {currentModule.imageUrl ? (
-              <img
+              <Image
+                width={300}
+                height={300}
                 src={currentModule.imageUrl}
                 alt={currentModule.title}
                 className="w-full h-48 object-cover rounded-lg mb-4 bg-brand-primary"

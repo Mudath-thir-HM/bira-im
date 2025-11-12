@@ -170,11 +170,14 @@ export const generateLessonContent = async (
 
 export const generateQuiz = async (
   subject: string,
-  level: string
+  level: string,
+  lessonData: LessonData
 ): Promise<QuizQuestion[]> => {
   if (!ai) return Promise.resolve(mockQuiz);
 
-  const generatedContent = generateLessonContent(subject, level);
+  const lessonText = lessonData.lessons
+    .map((l) => `${l.title}: ${l.content}`)
+    .join("\n\n");
 
   const quizSchema = {
     type: Type.OBJECT,
@@ -199,7 +202,11 @@ export const generateQuiz = async (
   try {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: `Create a quiz with 5 multiple-choice questions (4 options each) on the topic of "${subject}" for a Nigerian Junior Secondary School student in class ${level} based on the content generated before ${generatedContent}. The questions must be based on the Nigerian (NERDC) curriculum and use locally relevant context where appropriate. For each question, provide the question text, an array of 4 options, the correct answer text, and assign XP points (between 5 and 15) based on difficulty.`,
+      contents: `Based on the following lesson content for ${subject} (${level}), create a quiz with 5 multiple-choice questions (4 options each). The questions must be based on the lesson content below and use locally relevant context where appropriate. For each question, provide the question text, an array of 4 options, the correct answer text, and assign XP points (between 5 and 15) based on difficulty.
+
+Lesson Content:
+${lessonText}
+`,
       config: {
         responseMimeType: "application/json",
         responseSchema: quizSchema,
