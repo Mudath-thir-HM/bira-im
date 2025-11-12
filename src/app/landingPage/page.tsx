@@ -121,7 +121,7 @@ const LandingPage = () => {
         }`}
       >
         <h1 className="text-2xl tracking-wide font-black text-dark-brownium drop-shadow">
-          Naija Smart e-Learn
+          Adaptive e-learning System
         </h1>
         <Link href="/auth">
           <button className="border-2 border-gradient-to-br from-medium-brownium to-light-brownium text-dark-brownium px-4 py-2 rounded-xl hover:bg-gradient-to-br hover:from-medium-brownium hover:to-light-brownium hover:text-white transition-all cursor-pointer">
@@ -139,7 +139,7 @@ const LandingPage = () => {
           transition-all duration-700 ease-out transform
           ${show ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
           >
-            Welcome To Naija Smart e-Learn
+            Welcome To Adaptive e-learning System
           </h2>
 
           {/* Subtext */}
@@ -148,7 +148,8 @@ const LandingPage = () => {
           transition-opacity duration-700 delay-300
           ${show ? "opacity-100" : "opacity-0"}`}
           >
-            Where learning takes root and grows with Bud
+            An online learning platform for Junior secondary school students
+            with real-time content
           </p>
         </div>
       </section>
